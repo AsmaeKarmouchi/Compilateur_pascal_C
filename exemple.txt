@@ -1,0 +1,23 @@
+program test11;
+const toto=21.54,titi='asff';
+var
+     x : integer ;  y : char ;  z : real ;
+     d : string ; e : boolean ;
+type
+  tab = array[0:10] of INTEGER ;
+Begin
+x:=x +5;
+read(x,y);
+IF x=14 THEN y:=90 else if x=12 then x:=1 else x:=1 ;
+for y:=1 to 10 do z:=5;
+WHILE toto=45 DO z:=90;
+case (x) of
+   1 : y:=1 ;
+end;
+y:=5;
+e := true ;
+y := 'ahgcyfc';
+z:='asma';
+read(z);
+
+end.

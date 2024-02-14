@@ -1,0 +1,89 @@
+INT 	 6 
+LDA 	 0 
+LDI 	 21 
+STO 
+LDA 	 1 
+LDI 	 21 
+STO 
+LDA 	 2 
+LDV 
+LDA 	 3 
+LDV 
+LDA 	 4 
+LDV 
+LDA 	 5 
+LDV 
+LDA 	 6 
+LDV 
+LDA 	 2 
+LDA 	 2 
+LDV 
+LDI 	 5 
+ADD 
+STO 
+LDA 	 2 
+INN 
+LDA 	 3 
+INN 
+LDA 	 2 
+LDV 
+LDI 	 14 
+EQL 
+BZE 	 36 
+LDA 	 3 
+LDI 	 90 
+STO 
+BRN 	 48 
+LDA 	 2 
+LDV 
+LDI 	 12 
+EQL 
+BZE 	 45 
+LDA 	 2 
+LDI 	 1 
+STO 
+BRN 	 0 
+LDA 	 2 
+LDI 	 1 
+STO 
+LDA 	 7 
+LDV 
+LEQ 
+LDA 	 4 
+LDI 	 5 
+STO 
+LDI 	 1 
+LDA 	 6 
+LDV 
+ADD 
+STO 
+BRN 	 50 
+LDA 	 0 
+LDV 
+LDI 	 45 
+EQL 
+BZE 	 69 
+LDA 	 4 
+LDI 	 90 
+STO 
+BRN 	 60 
+LDA 	 2 
+LDV 
+BRN 	 76 
+LDA 	 3 
+LDI 	 1 
+STO 
+BRN 	 0 
+LDA 	 3 
+LDI 	 5 
+STO 
+LDA 	 6 
+LDI 	 1 
+STO 
+LDA 	 3 
+STO 
+LDA 	 4 
+STO 
+LDA 	 4 
+INN 
+HLT 
