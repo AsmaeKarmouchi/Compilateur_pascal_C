@@ -18,6 +18,8 @@ y:=5;
 e := true ;
 y := 'ahgcyfc';
 z:='asma';
+x:= tab[2];
+tab[2]:= 4;
 read(z);
 
 end.

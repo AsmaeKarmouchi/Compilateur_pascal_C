@@ -41,13 +41,13 @@ typedef enum
     EG_TOKEN,
     STRING_TOKEN ,
     REAL_TOKEN , 
-    CHAR_TOKEN ,
+   
     BOOLEAN_TOKEN,
     Tinteger_TOKEN ,
     Tstring_TOKEN ,
     Treal_TOKEN ,
     Tboolean_TOKEN ,
-    Tchar_TOKEN ,
+    Tchar_TOKEN,
     ARRAY_TOKEN ,
     CO_TOKEN ,
     CF_TOKEN ,//{
@@ -809,9 +809,7 @@ void CONSTVAL()
     case BOOLEAN_TOKEN:
         Test_Symbole(BOOLEAN_TOKEN, BOOLEAN_ERR);
         break;
-    case CHAR_TOKEN:
-        Test_Symbole(CHAR_TOKEN, CHAR_ERR);
-        break;
+
     default:
         Erreur(NUM_ERR);
         break;
@@ -1057,8 +1055,18 @@ int getIdentifierIndex(char *identifier) {
     return -1; // Retourne -1 si l'identifiant n'est pas trouvé
 }
 void AFFEC()
-{
-    //ID := EXPR
+{   if (!isIdentifierDeclared(SYM_COUR.NOM)) {
+        Erreur(UNDECLARED_IDENTIFIER_ERR);
+    }
+    // Vérifier si l'identifiant est une constante on peut pas affecter a une constante
+    int idIndex = getIdentifierIndex(SYM_COUR.NOM);
+    if (idIndex != -1 && TAB_IDFS[idIndex].TIDF == Ttab) {
+        
+      ARRAY_ACCESS();
+
+      
+    }else{
+           //ID := EXPR
     Test_Symbole(ID_TOKEN, ID_ERR);
     // Vérifier si l'identifiant est déjà déclaré
     if (!isIdentifierDeclared(SYM_COUR.NOM)) {
@@ -1072,32 +1080,13 @@ void AFFEC()
     }
     // Générer le code pour charger l'adresse de l'identifiant
     GENERER2(LDA, TABLESYM[idIndex-1].ADRESSE);
+    }
 
     Test_Symbole(AFF_TOKEN, AFF_ERR);
     // Modifier l'EXPR pour gérer STRING_TOKEN --MODIF--
-    if (SYM_COUR.CODE == STRING_TOKEN)
-    {
-        // On ne peut affecter qu'à une variable de type string
-        if (idIndex != -1 && TAB_IDFS[idIndex].TIDF != TVAR)
-        {
-            Erreur(ERREUR_ERR);
-        }
-
-        // Gérer l'affectation de STRING_TOKEN
-        Test_Symbole(STRING_TOKEN, ERREUR_ERR);
-
-        // Vérifier si la taille du string dépasse la taille déclarée de la variable
-        if (strlen(SYM_COUR.NOM) > 20)
-        {
-            Erreur(ERREUR_ERR);
-        }
-    }
-    else
-    {
+    
         // L'affectation standard pour les autres types (INT_TOKEN, etc.)
-        EXPR();
-         
-    }
+    EXPR();   
 
     // Générer le code pour l'affectation
     GENERER1(STO);
@@ -1189,9 +1178,7 @@ void VALUE()
     case BOOLEAN_TOKEN:
         Test_Symbole(BOOLEAN_TOKEN, BOOLEAN_ERR);
         break;
-    case CHAR_TOKEN:
-        Test_Symbole(CHAR_TOKEN, CHAR_ERR);
-        break;
+
     case ID_TOKEN:
         Test_Symbole(ID_TOKEN, ID_ERR);
         break;
@@ -1232,7 +1219,7 @@ void CASE()
         // Generate a branch instruction to skip the remaining CASE_BRANCHes
         GENERER2(BRN, 0);
 
-    } while (SYM_COUR.CODE == NUM_TOKEN || SYM_COUR.CODE == REAL_TOKEN || SYM_COUR.CODE == CHAR_TOKEN || SYM_COUR.CODE == BOOLEAN_TOKEN || SYM_COUR.CODE == STRING_TOKEN || SYM_COUR.CODE == ID_TOKEN);
+    } while (SYM_COUR.CODE == NUM_TOKEN || SYM_COUR.CODE == REAL_TOKEN || SYM_COUR.CODE == BOOLEAN_TOKEN || SYM_COUR.CODE == STRING_TOKEN || SYM_COUR.CODE == ID_TOKEN);
 
     // Update the branch instruction to jump to the end of the CASE statement
     PCODE[end_of_cases].SUITE = PC + 1;
@@ -1243,23 +1230,6 @@ void CASE()
 
 
 
-void BOOL()
-{
-    switch (SYM_COUR.CODE)
-    {
-    case TRUE_TOKEN:
-        Test_Symbole(TRUE_TOKEN, TRUE_ERR);
-        GENERER2(LDI, 1); // Load 'true' value (1) to the stack
-        break;
-    case FALSE_TOKEN:
-        Test_Symbole(FALSE_TOKEN, FALSE_ERR);
-        GENERER2(LDI, 0); // Load 'false' value (0) to the stack
-        break;
-    default:
-        Erreur(ERREUR_ERR);
-        break;
-    }
-}
 
 
 void TANTQUE()
@@ -1396,11 +1366,36 @@ void TERM()
     }
 }
 
+void ARRAY_ACCESS() {
+    // Assuming SYM_COUR is pointing to the ID token
+    Test_Symbole(ID_TOKEN, ID_ERR);
+
+    Test_Symbole(CO_TOKEN, CO_ERR);
+    // Assuming the array index is a numeric value
+    Test_Symbole(NUM_TOKEN, NUM_ERR);
+    Test_Symbole(CF_TOKEN, CF_ERR);
+    // Load the array index onto the top of the stack
+    GENERER2(LDI, SYM_COUR.val);
+
+}
+
 void FACT()
 {
     switch (SYM_COUR.CODE)
     {
     case ID_TOKEN:
+        
+    if (!isIdentifierDeclared(SYM_COUR.NOM)) {
+        Erreur(UNDECLARED_IDENTIFIER_ERR);
+    }
+    // Vérifier si l'identifiant est une constante on peut pas affecter a une constante
+    int idIndex = getIdentifierIndex(SYM_COUR.NOM);
+    if (idIndex != -1 && TAB_IDFS[idIndex].TIDF == Ttab) {
+        
+      ARRAY_ACCESS();
+      break;
+      
+    }else{
         Test_Symbole(ID_TOKEN, ID_ERR);
         // Récupérer l'indice de l'identifiant dans la table des symboles
         int idIndex = getIdentifierIndex(SYM_COUR.NOM);
@@ -1411,6 +1406,7 @@ void FACT()
         GENERER2(LDA, TABLESYM[idIndex-1].ADRESSE);
         GENERER1(LDV);
         break;
+    }
     case NUM_TOKEN:
         Test_Symbole(NUM_TOKEN, NUM_ERR);
         // Charger la valeur numérique au sommet de la pile
@@ -1431,21 +1427,24 @@ void FACT()
         // Handle false token
         GENERER2(LDI, 0);  // Assuming false is represented as 0
         break;
-    case CHAR_TOKEN:
-        Test_Symbole(CHAR_TOKEN ,CHAR_ERR);
+    case STRING_TOKEN:
+        Test_Symbole(STRING_TOKEN ,STRING_ERR);
         // Handle character token
         GENERER2(LDI, (int)SYM_COUR.val);  // Assuming char is represented as an integer
         break;
     case PO_TOKEN:
+        printf("%d U5UP",SYM_COUR.CODE);
         Test_Symbole(PO_TOKEN, PO_ERR);
         EXPR();
         Test_Symbole(PF_TOKEN, PF_ERR);
-        break;
+        break;  
+
     default:
         Erreur(ERREUR_ERR);
         break;
     }
 }
+// tab[3]:=8;      a:=  tab[3];
 
 void RELOP()
 {   
