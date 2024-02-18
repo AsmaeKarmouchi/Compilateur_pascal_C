@@ -1,23 +1,24 @@
 program test11;
-const toto=21.54,titi='asff';
+const toto=21.54,titi='Ts.ff',aa=2 , r = true;
 var
-     x : integer ;  y : char ;  z : real ;
-     d : string ; e : boolean ;
+     a,c,x : integer  ;  z : real ;
+     d,b,y : string ; e : boolean ;
 type
-  tab = array[0:10] of INTEGER ;
+  tab = array[2:10] of string ;
 Begin
 x:=x +5;
 read(x,y);
 IF x=14 THEN y:=90 else if x=12 then x:=1 else x:=1 ;
-for y:=1 to 10 do z:=5;
+for a:=1 to 10 do z:=5;
 WHILE toto=45 DO z:=90;
 case (x) of
-   1 : y:=1 ;
+   1 : c:=1 ;
 end;
-y:=5;
-e := true ;
-y := 'ahgcyfc';
+
+
+
 z:='asma';
+
 x:= tab[2];
 tab[2]:= 4;
 read(z);

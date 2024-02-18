@@ -1,97 +1,100 @@
-INT 	 6 
+INT 	 21 
 LDA 	 0 
 LDI 	 21 
 STO 
-LDA 	 1 
+LDA 	 6 
 LDI 	 21 
 STO 
-LDA 	 2 
+LDA 	 12 
+LDI 	 2 
+STO 
+LDA 	 13 
+LDI 	 2 
+STO 
+LDA 	 14 
 LDV 
-LDA 	 3 
+LDA 	 15 
 LDV 
-LDA 	 4 
+LDA 	 16 
 LDV 
-LDA 	 5 
+LDA 	 17 
 LDV 
-LDA 	 6 
+LDA 	 18 
 LDV 
-LDA 	 2 
-LDA 	 2 
+LDA 	 19 
+LDV 
+LDA 	 20 
+LDV 
+LDA 	 21 
+LDV 
+LDA 	 16 
+LDA 	 15 
 LDV 
 LDI 	 5 
 ADD 
 STO 
-LDA 	 2 
+LDA 	 16 
 INN 
-LDA 	 3 
+LDA 	 19 
 INN 
-LDA 	 2 
+LDA 	 15 
 LDV 
 LDI 	 14 
 EQL 
-BZE 	 36 
-LDA 	 3 
+BZE 	 48 
+LDA 	 20 
 LDI 	 90 
 STO 
-BRN 	 48 
-LDA 	 2 
+BRN 	 60 
+LDA 	 15 
 LDV 
 LDI 	 12 
 EQL 
-BZE 	 45 
-LDA 	 2 
+BZE 	 57 
+LDA 	 16 
 LDI 	 1 
 STO 
 BRN 	 0 
-LDA 	 2 
+LDA 	 16 
 LDI 	 1 
 STO 
-LDA 	 7 
+LDA 	 0 
 LDV 
 LEQ 
-LDA 	 4 
+LDA 	 17 
 LDI 	 5 
 STO 
 LDI 	 1 
-LDA 	 6 
+LDA 	 28 
 LDV 
 ADD 
 STO 
-BRN 	 50 
+BRN 	 62 
 LDA 	 0 
 LDV 
 LDI 	 45 
 EQL 
-BZE 	 69 
-LDA 	 4 
+BZE 	 81 
+LDA 	 17 
 LDI 	 90 
 STO 
-BRN 	 60 
-LDA 	 2 
+BRN 	 72 
+LDA 	 15 
 LDV 
-BRN 	 76 
-LDA 	 3 
+BRN 	 88 
+LDA 	 15 
 LDI 	 1 
 STO 
 BRN 	 0 
-LDA 	 3 
-LDI 	 5 
-STO 
-LDA 	 6 
+LDA 	 17 
 LDI 	 1 
 STO 
-LDA 	 3 
-LDI 	 5 
-STO 
-LDA 	 4 
-LDI 	 5 
-STO 
-LDA 	 2 
+LDA 	 16 
 LDI 	 2 
 STO 
 LDI 	 2 
 LDI 	 4 
 STO 
-LDA 	 4 
+LDA 	 17 
 INN 
 HLT 

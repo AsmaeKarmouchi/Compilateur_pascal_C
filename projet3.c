@@ -137,7 +137,7 @@ typedef struct
 {
     CODES_LEX CODE;
     char NOM[20];
-    int val;
+    float val;
 } TSym_Cour;
 
 TSym_Cour SYM_COUR;
@@ -176,7 +176,7 @@ char Car_Cour; // caractère courant
 
 typedef struct {
     char NOM[20];
-    int valeur;  
+    char valeur;  
     int ADRESSE;
 } ENREGISTREMENT;
 
@@ -184,11 +184,20 @@ typedef struct {
 #define TABLEINDEX 100
 ENREGISTREMENT TABLESYM[TABLEINDEX];
 
+
+
 // Variables globales
 int OFFSET;  // Remplace la définition précédente de OFFSET
 int SP;      // SP: sommet de la pile
 
-
+int getIdentifierIndex2(char *identifier) {
+    for (int i = 0; i < OFFSET+2; i++) {
+        if (strcmp(TABLESYM[i].NOM, identifier) == 0) {
+            return i; // Retourne l'index si l'identifiant est trouvé
+        }
+    }
+    return -1; // Retourne -1 si l'identifiant n'est pas trouvé
+}
 typedef enum {
     ADD, SUB, MUL, DIV, EQL, NEQ, GTR, LSS, GEQ, LEQ, PRN,
     INN, INT, LDI, LDA, LDV, STO, BRN, BZE, HLT
@@ -276,6 +285,7 @@ void Sym_Suiv();
 void lire_mot();
 void lire_nombre();
 int getIdentifierIndex(char *identifier);
+int getIdentifierIndex2(char *identifier);
 void lire_chaine()
 {   
     char chaine[20];
@@ -344,6 +354,7 @@ void semanticCheckAfterBegin() {
         if (!isIdentifierUsed(TAB_IDFS[i].NOM)) {
             // Identifier used after BEGIN must be declared
             Erreur(UNDECLARED_IDENTIFIER_ERR);
+            
         }
         int idIndex = getIdentifierIndex(SYM_COUR.NOM);
         if (idIndex != -1 && TAB_IDFS[idIndex].TIDF == TPROG) {
@@ -662,8 +673,8 @@ void Sym_Suiv()
             break;
 
         case '.':
-            
             SYM_COUR.CODE = PT_TOKEN;
+            Lire_Car();
             break;
 
         case EOF:
@@ -764,12 +775,10 @@ void CONSTS()
         addIdentifier(SYM_COUR.NOM, TCONST);
         TABLESYM[IND_DER_SYM_ACC ].ADRESSE = ++OFFSET;// generation code
         GENERER2(LDA, TABLESYM[IND_DER_SYM_ACC].ADRESSE);// generation code
+        strcpy(TABLESYM[OFFSET].NOM, SYM_COUR.NOM);// generation code
         IND_DER_SYM_ACC++; // generation code-Réserve la mémoire pour l'ID constant
         Test_Symbole(EG_TOKEN, EG_ERR);
-        strcpy(TABLESYM[OFFSET].NOM, SYM_COUR.NOM); // generation code
-
         CONSTVAL();
-        TABLESYM[OFFSET].valeur= SYM_COUR.val;// generation code
         GENERER2(LDI, SYM_COUR.val);
         GENERER1(STO);
 
@@ -782,11 +791,11 @@ void CONSTS()
         addIdentifier(SYM_COUR.NOM, TCONST);
         TABLESYM[IND_DER_SYM_ACC ].ADRESSE = ++OFFSET;// generation code
         GENERER2(LDA, TABLESYM[IND_DER_SYM_ACC].ADRESSE);// generation code
+        strcpy(TABLESYM[OFFSET].NOM, SYM_COUR.NOM); // generation code
         IND_DER_SYM_ACC++; // generation code-Réserve la mémoire pour l'ID constant
         Test_Symbole(EG_TOKEN, EG_ERR);
         CONSTVAL();
-        strcpy(TABLESYM[OFFSET].NOM, SYM_COUR.NOM); // generation code
-        TABLESYM[OFFSET].valeur= SYM_COUR.val;// generation code
+        
         GENERER2(LDI, SYM_COUR.val);
         GENERER1(STO);
         };
@@ -809,20 +818,55 @@ void CONSTVAL()
     switch (SYM_COUR.CODE)
     {
     case NUM_TOKEN:
+        TABLESYM[OFFSET].valeur= SYM_COUR.val;// generation code
         Test_Symbole(NUM_TOKEN, NUM_ERR);
          TAB_IDFS[NbrIDFS-1].TYPE = Tinteger;
         break;
+        
     case REAL_TOKEN:
+
+    {
+        float f = SYM_COUR.val;
+        char str[20]; // Assez grand pour stocker la représentation de votre float
+        sprintf(str, "%.2f", f);
+        //stock     ASCI
+        for (int i = 0; i<strlen(str); i++) {
+                TABLESYM[OFFSET].valeur = str[i];
+                TABLESYM[OFFSET].ADRESSE = OFFSET ;
+                IND_DER_SYM_ACC++; //pour chq car on l'incremente 
+                OFFSET++;
+        }
+        TABLESYM[OFFSET].valeur = '\0';
+        TABLESYM[OFFSET].ADRESSE = OFFSET ;
         Test_Symbole(REAL_TOKEN, REAL_ERR);
         TAB_IDFS[NbrIDFS-1].TYPE = Treal;
         break;
+    }    
     case STRING_TOKEN:
+            for (int i = 0; i<strlen(SYM_COUR.NOM); i++) {
+                    TABLESYM[OFFSET].valeur = SYM_COUR.NOM[i];
+                    TABLESYM[OFFSET].ADRESSE = OFFSET ;
+                    OFFSET++;
+                    IND_DER_SYM_ACC++;
+                }
+            TABLESYM[OFFSET].valeur = '\0';
+            TABLESYM[OFFSET].ADRESSE = OFFSET ;
+
+            //IND_DER_SYM_ACC-=1;
+            //OFFSET-=1;
+    
         Test_Symbole(STRING_TOKEN, STRING_ERR);
          TAB_IDFS[NbrIDFS-1].TYPE = Tstring;
         break;
-    case BOOLEAN_TOKEN:
-        Test_Symbole(BOOLEAN_TOKEN, BOOLEAN_ERR);
-         TAB_IDFS[NbrIDFS-1].TYPE = Tboolean;
+    case TRUE_TOKEN:
+        TABLESYM[OFFSET].valeur = 'T';
+        Test_Symbole(TRUE_TOKEN, TRUE_ERR);
+        TAB_IDFS[NbrIDFS-1].TYPE = Tboolean;
+        break;
+    case FALSE_TOKEN:
+        TABLESYM[OFFSET].valeur = 'F';
+        Test_Symbole(FALSE_TOKEN, FALSE_ERR);
+        TAB_IDFS[NbrIDFS-1].TYPE = Tboolean;
         break;
 
     default:
@@ -895,7 +939,6 @@ void IDLIST()
     }
 }
 
-
 void TYPE()
 { 
     switch (SYM_COUR.CODE)
@@ -931,6 +974,7 @@ void TYPE()
     }
 }
 
+
 void TABS()
 {
     switch (SYM_COUR.CODE)
@@ -939,6 +983,7 @@ void TABS()
      
         Sym_Suiv();
         Test_Symbole(ID_TOKEN, ID_ERR);
+        strcpy(TABLESYM[OFFSET].NOM, SYM_COUR.NOM);
         // Add the constant identifier to the symbol table
         addIdentifier(SYM_COUR.NOM, Ttab);
         Test_Symbole(EG_TOKEN, EG_ERR);
@@ -948,19 +993,18 @@ void TABS()
         {
             Sym_Suiv();
             Test_Symbole(ID_TOKEN, ID_ERR);
+            strcpy(TABLESYM[OFFSET].NOM, SYM_COUR.NOM);
         // Add the constant identifier to the symbol table
             addIdentifier(SYM_COUR.NOM, Ttab);
             Test_Symbole(EG_TOKEN, EG_ERR);
             ARRAY();
         };
-        printf("%d",SYM_COUR.CODE);
+        
         Test_Symbole(PV_TOKEN, PV_ERR);
-        printf("aaaab");
         break;
     case VAR_TOKEN:
         break;
     case BEGIN_TOKEN:
-    printf("aaaa");
         break;
     default:
         Erreur(CONST_VAR_BEGIN_ERR);
@@ -990,10 +1034,9 @@ void ARRAY()
     
     TYPE();
     
-  
-    printf("bnadm");
 }
 
+int tab_sp=0;
 void ELEMENT()
 {
     switch (SYM_COUR.CODE)
@@ -1006,9 +1049,17 @@ void ELEMENT()
         Test_Symbole(REAL_TOKEN, REAL_ERR);
         break;
     case NUM_TOKEN:
-    
+        tab_sp=-(int)SYM_COUR.val;
         Test_Symbole(NUM_TOKEN, NUM_ERR);
         Test_Symbole(DPT_TOKEN , DPT_ERR);
+        tab_sp = tab_sp+(int)SYM_COUR.val;
+        for (int i = 0; i<=tab_sp; i++) {
+                TABLESYM[OFFSET].ADRESSE = OFFSET ;
+                IND_DER_SYM_ACC++;
+                OFFSET++;
+        }//boucle ajoute case vide
+        IND_DER_SYM_ACC-=1;
+        OFFSET-=1;
         Test_Symbole(NUM_TOKEN, NUM_ERR);
         // Process range (implementation needed based on your requirements)
         break;
@@ -1104,7 +1155,8 @@ void AFFEC()
         Erreur(CONST_MODIFICATION_ERR);
     }
     // Générer le code pour charger l'adresse de l'identifiant
-    GENERER2(LDA, TABLESYM[idIndex-1].ADRESSE);
+    int idIndex2 = getIdentifierIndex2(SYM_COUR.NOM);
+    GENERER2(LDA, TABLESYM[idIndex2].ADRESSE);
     }
 
     Test_Symbole(AFF_TOKEN, AFF_ERR);
@@ -1156,11 +1208,9 @@ void FOR()
 
     // Add the loop variable to the symbol table
     //addIdentifier(SYM_COUR.NOM, TVAR);
-    TABLESYM[IND_DER_SYM_ACC].ADRESSE = ++OFFSET; // generation code
-    strcpy(TABLESYM[OFFSET].NOM, SYM_COUR.NOM);   // generation code
+ 
     GENERER2(LDA, TABLESYM[IND_DER_SYM_ACC].ADRESSE); // generation code
     GENERER1(LDV);                                   // generation code
-    IND_DER_SYM_ACC++;                               // generation code - Réserve la mémoire pour l'ID variable
 
     Test_Symbole(AFF_TOKEN, AFF_ERR);
     Test_Symbole(NUM_TOKEN, NUM_ERR);
@@ -1314,7 +1364,8 @@ void LIRE()
         }
         
         // Charger la valeur de l'identifiant au sommet de la pile
-        GENERER2(LDA, TABLESYM[idIndex-1].ADRESSE);
+        int idIndex2 = getIdentifierIndex2(SYM_COUR.NOM);
+        GENERER2(LDA, TABLESYM[idIndex2].ADRESSE);
         GENERER1(INN);
 
     while (SYM_COUR.CODE == VIR_TOKEN)
@@ -1323,14 +1374,14 @@ void LIRE()
         Test_Symbole(ID_TOKEN, ID_ERR);
 
         // Récupérer l'indice de l'identifiant dans la table des symboles
-        int idIndex = getIdentifierIndex(SYM_COUR.NOM);
+        int idIndex2 = getIdentifierIndex2(SYM_COUR.NOM);
         
-        if (idIndex == -1) {
+        if (idIndex2 == -1) {
             Erreur(UNDECLARED_IDENTIFIER_ERR);
         }
         
         // Charger la valeur de l'identifiant au sommet de la pile
-        GENERER2(LDA, TABLESYM[idIndex-1].ADRESSE);
+        GENERER2(LDA, TABLESYM[idIndex2-1].ADRESSE);
         GENERER1(INN);
     }
 
@@ -1409,10 +1460,13 @@ void FACT()
     switch (SYM_COUR.CODE)
     {
     case ID_TOKEN:
-        
+       
     if (!isIdentifierDeclared(SYM_COUR.NOM)) {
         Erreur(UNDECLARED_IDENTIFIER_ERR);
+        
+        
     }
+
     // Vérifier si l'identifiant est une constante on peut pas affecter a une constante
     int idIndex = getIdentifierIndex(SYM_COUR.NOM);
     if (idIndex != -1 && TAB_IDFS[idIndex].TIDF == Ttab) {
@@ -1423,12 +1477,13 @@ void FACT()
     }else{
         Test_Symbole(ID_TOKEN, ID_ERR);
         // Récupérer l'indice de l'identifiant dans la table des symboles
-        int idIndex = getIdentifierIndex(SYM_COUR.NOM);
-        if (idIndex == -1) {
+        int idIndex2 = getIdentifierIndex2(SYM_COUR.NOM);
+        if (idIndex2 == -1) {
             Erreur(UNDECLARED_IDENTIFIER_ERR);
+            
         }
         // Charger la valeur de l'identifiant au sommet de la pile
-        GENERER2(LDA, TABLESYM[idIndex-1].ADRESSE);
+        GENERER2(LDA, TABLESYM[idIndex2-1].ADRESSE);
         GENERER1(LDV);
         break;
     }
@@ -1546,6 +1601,8 @@ void displayUsedIdentifiers() {
     }
     printf("-------------------------------------------------\n");
 }
+
+
 void afficherTableSymboles() {
     printf("\nTable des symboles :\n");
     printf("-----------------------------------------------------------------------\n");
@@ -1553,8 +1610,15 @@ void afficherTableSymboles() {
     printf("-----------------------------------------------------------------------\n");
 
     for (int i = 0; i <= OFFSET; ++i) {
-        printf("| %-20s | %-20d | %-20d |\n", TABLESYM[i].NOM, TABLESYM[i].valeur, TABLESYM[i].ADRESSE);
-    }
+    printf("| %-20s | ", TABLESYM[i].NOM); 
+
+    if (isalpha(TABLESYM[i].valeur) || TABLESYM[i].valeur == '\0' ) 
+    { printf("%-20c | ", TABLESYM[i].valeur);} 
+    else {
+        printf("%-20d | ", TABLESYM[i].valeur);}
+    
+    printf("%-20d |\n", TABLESYM[i].ADRESSE); 
+}
 
     printf("-----------------------------------------------------------------------\n");
 }
