@@ -130,7 +130,8 @@ typedef enum
     CONST_MODIFICATION_ERR,
     PROGRAM_TYPE_AFTER_BEGIN_ERR,
     VAR_BEGIN_ERR,
-    INST_PCODE_ERR
+    INST_PCODE_ERR,
+    INCOMPATIBLE_TYPES_ERR
 } CODES_ERR;
 
 typedef struct
@@ -246,6 +247,7 @@ void GENERER2(MNEMONIQUES M, int A) {
 //=========================================================================================================//
 
 // functions declaration
+int areTypesCompatible(int type1, int type2);
 void VARS();
 void INSTS();
 void INST();
@@ -257,6 +259,7 @@ void LIRE();
 void EXPR();
 void TERM();
 void FACT();
+void FACT2();
 void MULOP();
 void ADDOP();
 void RELOP();
@@ -324,7 +327,26 @@ int isIdentifierDeclared(char *identifier) {
     }
     return 0; // Identifier is not declared
 }
+int getTypeOfExpression( char *identifier)
+{
+       for (int i = 0; i < NbrIDFS; i++) {
+        if (strcmp(TAB_IDFS[i].NOM, identifier) == 0) {
+            return TAB_IDFS[i].TYPE; // Retourne l'index si l'identifiant est trouvé
+        }
+    }
+    return -1; // Retourne -1 si l'identifiant n'est pas trouvé
+}
+int areTypesCompatible(int type1, int type2)
+{
+    if (type1 == type2) {
+        return 1;  // Types are compatible
+    } else {
+        // Report error and return 0 for incompatible types
+       Erreur(INCOMPATIBLE_TYPES_ERR);
+        return 0;
+    }
 
+}
 
 void addIdentifier(char *identifier, TSYM type) {
     // Check for double declarations
@@ -716,6 +738,9 @@ void Erreur(CODES_ERR code)
     case PROGRAM_TYPE_AFTER_BEGIN_ERR:
         printf("Erreur: L'identifiant '%s' non autorisé car c'est nom de programme  \n", SYM_COUR.NOM);
         break;
+    case INCOMPATIBLE_TYPES_ERR:
+        printf("Erreur: Incompatible types  '%s','%d'\n", SYM_COUR.NOM ,getTypeOfExpression(SYM_COUR.NOM));
+        break;
     // ...
     default:
         printf("Erreur inconnue.\n");
@@ -948,12 +973,25 @@ void TYPE()
             for (int i=NbrIDFS ; i >=  NbrIDFS-c ; i-- ){
                   TAB_IDFS[i].TYPE = Tinteger;
             }
+                
         break;
     case Tstring_TOKEN:
             Sym_Suiv();
-            for (int i=NbrIDFS; i >=  NbrIDFS-c ; i-- ){
-                  TAB_IDFS[i].TYPE = Tstring;
-            }
+            for (int k = 0; k<c; k++) { 
+                    strcpy(TABLESYM[OFFSET-k].NOM, ""); 
+                }  
+                for (int i=NbrIDFS-c ; i <= NbrIDFS-1 ; i++ ){
+                    TAB_IDFS[i].TYPE = Tstring;
+
+                    for (int j = 0; j<10; j++) {
+                    TABLESYM[OFFSET].ADRESSE = OFFSET ;
+                    OFFSET++;
+                    IND_DER_SYM_ACC++;
+                    }
+                    
+                    strcpy(TABLESYM[OFFSET-10-c].NOM,TAB_IDFS[i].NOM);
+                
+                }
         break;
     case Treal_TOKEN:
             Sym_Suiv();
@@ -1133,38 +1171,47 @@ int getIdentifierIndex(char *identifier) {
     }
     return -1; // Retourne -1 si l'identifiant n'est pas trouvé
 }
+
+int type1;
+ int type2;
 void AFFEC()
-{   if (!isIdentifierDeclared(SYM_COUR.NOM)) {
+{ type1 = -1;
+      if (!isIdentifierDeclared(SYM_COUR.NOM)) {
         Erreur(UNDECLARED_IDENTIFIER_ERR);
     }
-    int idIndex = getIdentifierIndex(SYM_COUR.NOM);
-    if (idIndex != -1 && TAB_IDFS[idIndex].TIDF == Ttab) {    
-      ARRAY_ACCESS();
-      
+     type1 = getTypeOfExpression(SYM_COUR.NOM);  // Get type of the left-hand side
+
+
+    int targetType = getIdentifierIndex(SYM_COUR.NOM);
+    if (targetType != -1 && TAB_IDFS[targetType].TIDF == Ttab) {    
+      ARRAY_ACCESS(); 
     }else{
-           //ID := EXPR
-    Test_Symbole(ID_TOKEN, ID_ERR);
-    // Vérifier si l'identifiant est déjà déclaré
-    if (!isIdentifierDeclared(SYM_COUR.NOM)) {
-        Erreur(UNDECLARED_IDENTIFIER_ERR);
-    }
-    // Vérifier si l'identifiant est une constante on peut pas affecter a une constante
-    int idIndex = getIdentifierIndex(SYM_COUR.NOM);
-    if (idIndex != -1 && TAB_IDFS[idIndex].TIDF == TCONST) {
+        //ID := EXPR
+        Test_Symbole(ID_TOKEN, ID_ERR);
+        // Vérifier si l'identifiant est déjà déclaré
+        if (!isIdentifierDeclared(SYM_COUR.NOM)) {
+            Erreur(UNDECLARED_IDENTIFIER_ERR);
+        }
+        // Vérifier si l'identifiant est une constante on peut pas affecter a une constante
+         int idIndex = getIdentifierIndex(SYM_COUR.NOM);
+         if (idIndex != -1 && TAB_IDFS[idIndex].TIDF == TCONST) {
         // Tentative de modification d'une constante, ce qui est une erreur
         Erreur(CONST_MODIFICATION_ERR);
-    }
-    // Générer le code pour charger l'adresse de l'identifiant
-    int idIndex2 = getIdentifierIndex2(SYM_COUR.NOM);
-    GENERER2(LDA, TABLESYM[idIndex2].ADRESSE);
+         }
+      
+        // Générer le code pour charger l'adresse de l'identifiant
+        int idIndex2 = getIdentifierIndex2(SYM_COUR.NOM);
+        GENERER2(LDA, TABLESYM[idIndex2].ADRESSE);
     }
 
     Test_Symbole(AFF_TOKEN, AFF_ERR);
 
-
-// L'affectation standard pour les autres types (INT_TOKEN, etc.)
-    EXPR();   
-
+    // L'affectation standard pour les autres types (INT_TOKEN, etc.)
+    EXPR();  
+        if (!areTypesCompatible(type1, type2)) {
+                Erreur(INCOMPATIBLE_TYPES_ERR);
+            }
+    
     // Générer le code pour l'affectation
     GENERER1(STO);
 
@@ -1390,13 +1437,12 @@ void LIRE()
 
 void COND()
 {   
-    EXPR();
-    RELOP();
-      
-    EXPR();
+    Test_Symbole(ID_TOKEN, ID_ERR);
+    type1 = getTypeOfExpression(SYM_COUR.NOM);  
+    RELOP();  
+    FACT();
     
     // Générer le code P-Code pour l'opération de comparaison
-    GENERER1(op);
 }
 
 void EXPR()
@@ -1455,17 +1501,16 @@ void ARRAY_ACCESS() {
 
 }
 
+//blan had fact mais pour l'affectation seulement hit bhala makatakhodch type1 katn9z directement l type2
 void FACT()
-{
+{    type2 = -1;
     switch (SYM_COUR.CODE)
     {
     case ID_TOKEN:
-       
-    if (!isIdentifierDeclared(SYM_COUR.NOM)) {
-        Erreur(UNDECLARED_IDENTIFIER_ERR);
-        
-        
-    }
+        type2 = getTypeOfExpression(SYM_COUR.NOM);
+        if (!isIdentifierDeclared(SYM_COUR.NOM)) {
+             Erreur(UNDECLARED_IDENTIFIER_ERR);       
+        }
 
     // Vérifier si l'identifiant est une constante on peut pas affecter a une constante
     int idIndex = getIdentifierIndex(SYM_COUR.NOM);
@@ -1488,16 +1533,19 @@ void FACT()
         break;
     }
     case NUM_TOKEN:
+         type2 = 0;
         Test_Symbole(NUM_TOKEN, NUM_ERR);
         // Charger la valeur numérique au sommet de la pile
         GENERER2(LDI, SYM_COUR.val);
         break;
     case REAL_TOKEN :
+        type2 = 2;
         Test_Symbole(REAL_TOKEN , REAL_ERR);
                  // Charger la valeur numérique au sommet de la pile
         GENERER2(LDI, SYM_COUR.val);
         break;
     case TRUE_TOKEN:
+
         Test_Symbole(TRUE_TOKEN , TRUE_ERR);
         // Handle true token
         GENERER2(LDI, 1);  // Assuming true is represented as 1
@@ -1508,11 +1556,13 @@ void FACT()
         GENERER2(LDI, 0);  // Assuming false is represented as 0
         break;
     case STRING_TOKEN:
+        type2 = 1 ;
         Test_Symbole(STRING_TOKEN ,STRING_ERR);
         // Handle character token
         GENERER2(LDI, (int)SYM_COUR.val);  // Assuming char is represented as an integer
         break;
     case PO_TOKEN:
+       
         printf("%d U5UP",SYM_COUR.CODE);
         Test_Symbole(PO_TOKEN, PO_ERR);
         EXPR();
@@ -1538,15 +1588,19 @@ void RELOP()
     case DIFF_TOKEN:
         Test_Symbole(SYM_COUR.CODE, DIFF_ERR);
         op = NEQ;
+        break;
     case INF_TOKEN:
         Test_Symbole(SYM_COUR.CODE, INF_ERR);
         op = LSS;
+        break;
     case SUP_TOKEN:
         Test_Symbole(SYM_COUR.CODE, SUP_ERR);
         op = GTR;
+        break;
     case INFEG_TOKEN:
         Test_Symbole(SYM_COUR.CODE, INFEG_ERR);
         op =  LEQ;
+        break;
     case SUPEG_TOKEN:
         Test_Symbole(SYM_COUR.CODE, SUPEG_ERR);
         op = GEQ;

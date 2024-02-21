@@ -1,100 +1,168 @@
-INT 	 21 
-LDA 	 0 
-LDI 	 21 
+INT 	 20 
+ILDA 	 0 
+ILDI 	 21 
 STO 
-LDA 	 6 
-LDI 	 21 
+ILDA 	 1 
+ILDI 	 2 
 STO 
-LDA 	 12 
-LDI 	 2 
+ILDA 	 2 
+ILDI 	 5 
 STO 
-LDA 	 13 
-LDI 	 2 
+FLDA 	 3 
+FLDI 	 51 
+FLDI 	 46 
+FLDI 	 49 
+FLDI 	 52 
+LEN 	 4 
 STO 
-LDA 	 14 
+SLDA 	 8 
+SLDI 	 100 
+SLDI 	 97 
+SLDI 	 106 
+SLDI 	 106 
+LEN 	 4 
+STO 
+SLDA 	 13 
+SLDI 	 97 
+SLDI 	 122 
+SLDI 	 122 
+SLDI 	 97 
+LEN 	 4 
+STO 
+BLDA 	 18 
+BLDI 	 1 
+STO 
+ILDA 	 19 
 LDV 
-LDA 	 15 
+ILDA 	 20 
 LDV 
-LDA 	 16 
+ILDA 	 21 
 LDV 
-LDA 	 17 
+ILDA 	 22 
 LDV 
-LDA 	 18 
+ILDA 	 23 
+LDV 
+SLDA 	 24 
+LDV 
+SLDA 	 34 
+LDV 
+SLDA 	 44 
+LDV 
+SLDA 	 54 
+LDV 
+FLDA 	 64 
+LDV 
+FLDA 	 69 
+LDV 
+BLDA 	 74 
+LDV 
+BLDA 	 75 
+LDV 
+TLDA 	 76 
+LEN 	 5 
 LDV 
 LDA 	 19 
-LDV 
 LDA 	 20 
 LDV 
+ILDI 	 5 
+ADD 
+STO 
+LDA 	 19 
+INN 
+LDA 	 20 
+INN 
+LDA 	 64 
+LDV 
+ILDI 	 14 
+EQL 
+BZE 	 82 
+LDA 	 20 
+ILDI 	 90 
+STO 
+BRN 	 98 
+LDA 	 34 
+LDV 
+SLDI 	 97 
+SLDI 	 109 
+SLDI 	 105 
+SLDI 	 110 
+SLDI 	 101 
+EQL 
+BZE 	 95 
+LDA 	 20 
+ILDI 	 45 
+STO 
+BRN 	 98 
+LDA 	 20 
+ILDI 	 32 
+STO 
+LDA 	 19 
+LDV 
+ILDI 	 45 
+EQL 
+BZE 	 107 
+LDA 	 20 
+ILDI 	 90 
+STO 
+BRN 	 98 
+LDA 	 19 
+STO 
+BFOR 	 1 
+EFOR 	 5 
+LDA 	 21 
 LDA 	 21 
 LDV 
-LDA 	 16 
-LDA 	 15 
-LDV 
-LDI 	 5 
+ILDI 	 5 
 ADD 
 STO 
-LDA 	 16 
-INN 
+BRN 	 111 
+LDA 	 64 
+ILDI 	 6 
+STO 
+TABA 	 76 
+TABI 	 5 
 LDA 	 19 
-INN 
-LDA 	 15 
 LDV 
-LDI 	 14 
-EQL 
-BZE 	 48 
+STO 
+LDA 	 21 
+TABA 	 76 
+TABI 	 3 
+STO 
 LDA 	 20 
-LDI 	 90 
+ILDI 	 5 
 STO 
-BRN 	 60 
-LDA 	 15 
-LDV 
-LDI 	 12 
-EQL 
-BZE 	 57 
-LDA 	 16 
-LDI 	 1 
-STO 
-BRN 	 0 
-LDA 	 16 
-LDI 	 1 
-STO 
-LDA 	 0 
-LDV 
-LEQ 
-LDA 	 17 
-LDI 	 5 
-STO 
-LDI 	 1 
-LDA 	 28 
-LDV 
-ADD 
-STO 
-BRN 	 62 
-LDA 	 0 
-LDV 
-LDI 	 45 
-EQL 
-BZE 	 81 
-LDA 	 17 
-LDI 	 90 
-STO 
-BRN 	 72 
-LDA 	 15 
-LDV 
-BRN 	 88 
-LDA 	 15 
-LDI 	 1 
-STO 
-BRN 	 0 
-LDA 	 17 
-LDI 	 1 
-STO 
-LDA 	 16 
-LDI 	 2 
-STO 
-LDI 	 2 
-LDI 	 4 
-STO 
-LDA 	 17 
+LDA 	 21 
 INN 
+LDA 	 64 
+LDV 
+CASEE 	 148 
+ILDI 	 1 
+CASET 	 143 
+LDA 	 21 
+ILDI 	 97 
+STO 
+ILDI 	 2 
+CASET 	 148 
+LDA 	 21 
+ILDI 	 94 
+STO 
+LDA 	 24 
+LDV 
+CASEE 	 167 
+SLDI 	 97 
+SLDI 	 97 
+SLDI 	 97 
+SLDI 	 97 
+CASET 	 159 
+LDA 	 21 
+ILDI 	 97 
+STO 
+SLDI 	 100 
+SLDI 	 100 
+SLDI 	 100 
+SLDI 	 100 
+CASET 	 167 
+LDA 	 21 
+ILDI 	 94 
+STO 
 HLT 

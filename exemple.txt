@@ -1,26 +1,27 @@
 program test11;
-const toto=21.54,titi='Ts.ff',aa=2 , r = true;
-var
-     a,c,x : integer  ;  z : real ;
-     d,b,y : string ; e : boolean ;
-type
-  tab = array[2:10] of string ;
+const toto=21,titi=2,gh=5,pi=3.14,dg='dajj',er='azza', k=true  ;
+var x,y,z,fd,hj :Integer; j,s,r,ee : string; qs,dddf:real; azz,KK:Boolean; 
+type tab=array[1:5] of Integer;
 Begin
-x:=x +5;
+x:=y +5;
 read(x,y);
-IF x=14 THEN y:=90 else if x=12 then x:=1 else x:=1 ;
-for a:=1 to 10 do z:=5;
-WHILE toto=45 DO z:=90;
-case (x) of
-   1 : c:=1 ;
+IF qs=14 THEN y:=90 else if s='amine' then y:=45 else  y:=32  ;
+WHILE x=45 DO y:=90;
+for x:= 1 to 5 do z:=z+5;
+qs:=6;
+tab[9]:=x;
+z:=tab[3];
+y:=5;
+read(z);
+case (qs) of 
+    1: z:=97;
+    2: z:=94;
 end;
 
-
-
-z:='asma';
-
-x:= tab[2];
-tab[2]:= 4;
-read(z);
+case (j) of 
+    'aaaa': z:=97;
+    'dddd': z:=94;
+end;
 
 end.
+
