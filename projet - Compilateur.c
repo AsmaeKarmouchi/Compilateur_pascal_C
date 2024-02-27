@@ -1,3 +1,4 @@
+//analyseur lexical syntaxique sementique
 
 #include <stdio.h>
 #include <stdlib.h>
